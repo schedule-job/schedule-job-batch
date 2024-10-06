@@ -30,6 +30,42 @@
       }
       ```
 
+### [POST] /api/v1/request/next/:name
+
+- Example
+
+  - `/api/v1/request/next/defaultRequest`
+  - Request
+
+    - Body
+
+      ```json
+      {
+        "id": "1234",
+        "url": "https://localhost:8080",
+        "method": "GET",
+        "body": "[:toTimestamp(hour=10, minute=10):]",
+        "headers": {}
+      }
+      ```
+
+  - Response
+
+    - Body
+
+      ```json
+      {
+        "code": 200,
+        "data": {
+          "id": "1234",
+          "url": "https://localhost:8080",
+          "method": "GET",
+          "body": "1728209400000",
+          "headers": {}
+        }
+      }
+      ```
+
 ### [POST] /api/v1/request
 
 - Example

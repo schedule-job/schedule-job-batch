@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	ginsession "github.com/go-session/gin-session"
 	"github.com/schedule-job/schedule-job-batch/internal/pg"
+	"github.com/schedule-job/schedule-job-batch/internal/request"
 	"github.com/schedule-job/schedule-job-batch/internal/rule_based_replace"
 	"github.com/schedule-job/schedule-job-batch/internal/schedule"
 )
@@ -72,6 +73,8 @@ func main() {
 	rule_based_replace.Replacer.AddRule("toTimestamp", rule_based_replace.ToTimestamp, nil)
 	rule_based_replace.Replacer.AddRule("toTimestampAddMinute", rule_based_replace.ToTimestampAddMinute, nil)
 
+	request.Requester.AddRequest("defaultRequest", request.NewDefaultRequestByInterface, nil)
+
 	if options.TrustedProxies != "" {
 		trustedProxies := strings.Split(options.TrustedProxies, ",")
 		router.SetTrustedProxies(trustedProxies)
@@ -99,8 +102,30 @@ func main() {
 		ctx.JSON(200, gin.H{"code": 200, "data": result})
 	})
 
+	router.POST("/api/v1/request/next/:name", func(ctx *gin.Context) {
+		name := ctx.Param("name")
+
+		var check = request.Requester.CheckSupportedRequest(name)
+		if !check {
+			ctx.JSON(400, gin.H{"code": 400, "message": "지원하지 않는 요청입니다."})
+			return
+		}
+
+		payload := make(map[string]interface{})
+		ctx.BindJSON(&payload)
+
+		result, err := request.Requester.Request(name, payload)
+
+		if err != nil {
+			ctx.JSON(400, gin.H{"code": 400, "message": err.Error()})
+			return
+		}
+
+		ctx.JSON(200, gin.H{"code": 200, "data": request.NewRequestFormat(result)})
+	})
+
 	router.POST("/api/v1/request", func(ctx *gin.Context) {
-		// - 1000개씩 읽어서 작업을 진행. 모든 요청이 끝나야 다음 1000개 작업
+
 		ctx.JSON(200, gin.H{"code": 200, "data": "ok"})
 	})
 
