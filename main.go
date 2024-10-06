@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	ginsession "github.com/go-session/gin-session"
 	"github.com/schedule-job/schedule-job-batch/internal/pg"
+	"github.com/schedule-job/schedule-job-batch/internal/schedule"
 )
 
 type Options struct {
@@ -57,6 +58,14 @@ func main() {
 
 	router := gin.Default()
 	router.Use(ginsession.New())
+
+	schedule.Scheduler.AddSchedule("daily", schedule.Daily, nil)
+	schedule.Scheduler.AddSchedule("everyHour", schedule.EveryHour, nil)
+	schedule.Scheduler.AddSchedule("everyMonth", schedule.EveryMonth, nil)
+	schedule.Scheduler.AddSchedule("everyNWeeks", schedule.EveryNWeeks, nil)
+	schedule.Scheduler.AddSchedule("everyWeeks", schedule.EveryWeeks, nil)
+	schedule.Scheduler.AddSchedule("everyYear", schedule.EveryYear, nil)
+	schedule.Scheduler.AddSchedule("weeksOfEveryMonth", schedule.WeeksOfEveryMonth, nil)
 
 	if options.TrustedProxies != "" {
 		trustedProxies := strings.Split(options.TrustedProxies, ",")
