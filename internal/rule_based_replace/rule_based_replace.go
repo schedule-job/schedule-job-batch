@@ -15,10 +15,10 @@ func getSupportFunc(text string) []string {
 }
 
 func parseParams(params string) map[string]string {
-	var words = tool.FindWords(params, `([^,= ]+)=([^,=]+)`)
+	var words = tool.FindWords(params, `([^,=]+)=([^,=]+)`)
 	var result = make(map[string]string)
 	for i := 0; i < len(words); i += 2 {
-		result[words[i]] = words[i+1]
+		result[strings.TrimSpace(words[i])] = strings.TrimSpace(words[i+1])
 	}
 	return result
 }
