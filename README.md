@@ -6,25 +6,26 @@
 
 ### [POST] /api/v1/schedule/next/:name
 
-- Request
+- Example
 
-  - Body
+  - `/api/v1/schedule/next/everyHour`
+  - Request
 
-    ```json
-    // /api/v1/schedule/next/everyHour
-    {
-      "minute": "32"
-    }
-    ```
+    - Body
 
-- Response
+      ```json
+      {
+        "minute": "32"
+      }
+      ```
 
-  - Body
+  - Response
 
-    ```json
-    // /api/v1/schedule/next/everyHour
-    {
-      "code": 200,
-      "data": "2024-10-06T08:32:00Z"
-    }
-    ```
+    - Body
+
+      ```json
+      {
+        "code": 200,
+        "data": "2024-10-06T08:32:00Z"
+      }
+      ```
