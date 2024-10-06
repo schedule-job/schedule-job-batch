@@ -5,11 +5,11 @@ import (
 	"time"
 )
 
-type scheduleOption struct {
+type ScheduleOption struct {
 }
 
 type Schedule struct {
-	Options         scheduleOption
+	Options         ScheduleOption
 	schedules       map[string]func(time.Time, map[string]string, interface{}) (*time.Time, error)
 	scheduleOptions map[string]interface{}
 }
