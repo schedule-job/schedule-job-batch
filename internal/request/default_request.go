@@ -1,6 +1,8 @@
 package request
 
-import "github.com/schedule-job/schedule-job-batch/internal/tool"
+import (
+	"github.com/schedule-job/schedule-job-batch/internal/rule_based_replace"
+)
 
 type DefaultRequest struct {
 	Request
@@ -21,7 +23,7 @@ func (r DefaultRequest) GetMethod() string {
 	return r.Method
 }
 func (r DefaultRequest) GetBody() string {
-	return tool.RuleBasedReplace(r.Body)
+	return rule_based_replace.Replacer.RuleBasedReplace(r.Body)
 }
 func (r DefaultRequest) GetHandlers() map[string][]string {
 	return r.Handlers

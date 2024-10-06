@@ -1,19 +1,21 @@
-package tool
+package rule_based_replace
 
 import (
 	"strings"
+
+	"github.com/schedule-job/schedule-job-batch/internal/tool"
 )
 
-type ruleOption struct {
+type ruleBasedReplaceOption struct {
 	AllowRules []string
 }
 
 func getSupportFunc(text string) []string {
-	return FindWords(text, `(\[\:[^(]+\([^)(]*\)\:\])`)
+	return tool.FindWords(text, `(\[\:[^(]+\([^)(]*\)\:\])`)
 }
 
 func parseParams(params string) map[string]string {
-	var words = FindWords(params, `([^,= ]+)=([^,=]+)`)
+	var words = tool.FindWords(params, `([^,= ]+)=([^,=]+)`)
 	var result = make(map[string]string)
 	for i := 0; i < len(words); i += 2 {
 		result[words[i]] = words[i+1]
@@ -22,17 +24,17 @@ func parseParams(params string) map[string]string {
 }
 
 func parseNameWithParams(function string) (string, map[string]string) {
-	var words = FindWords(function, `\[\:([^(]+)\(([^)(]*)\)\:\]`)
+	var words = tool.FindWords(function, `\[\:([^(]+)\(([^)(]*)\)\:\]`)
 	return words[0], parseParams(words[1])
 }
 
-type Tool struct {
-	Options      ruleOption
+type RuleBasedReplace struct {
+	Options      ruleBasedReplaceOption
 	rules        map[string]func(map[string]string, interface{}) (string, error)
 	rulesOptions map[string]interface{}
 }
 
-func (t *Tool) AddRule(name string, f func(map[string]string, interface{}) (string, error), options interface{}) {
+func (t *RuleBasedReplace) AddRule(name string, f func(map[string]string, interface{}) (string, error), options interface{}) {
 	if t.rules == nil {
 		t.rules = make(map[string]func(map[string]string, interface{}) (string, error))
 	}
@@ -43,7 +45,7 @@ func (t *Tool) AddRule(name string, f func(map[string]string, interface{}) (stri
 	t.rulesOptions[name] = options
 }
 
-func (t *Tool) RuleBasedReplace(text string) string {
+func (t *RuleBasedReplace) RuleBasedReplace(text string) string {
 	var newText = text
 	var words = getSupportFunc(text)
 	for _, word := range words {
@@ -51,7 +53,7 @@ func (t *Tool) RuleBasedReplace(text string) string {
 		if t.rules[name] == nil {
 			continue
 		}
-		if t.Options.AllowRules != nil && !ContainsStringArray(t.Options.AllowRules, name) {
+		if t.Options.AllowRules != nil && !tool.ContainsStringArray(t.Options.AllowRules, name) {
 			continue
 		}
 		result, err := t.rules[name](params, t.rulesOptions[name])
@@ -69,3 +71,5 @@ func (t *Tool) RuleBasedReplace(text string) string {
 	}
 	return newText
 }
+
+var Replacer = RuleBasedReplace{}

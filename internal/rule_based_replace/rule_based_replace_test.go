@@ -1,18 +1,15 @@
-package tool_test
+package rule_based_replace_test
 
 import (
 	"errors"
 	"strconv"
 	"testing"
 
-	"github.com/schedule-job/schedule-job-batch/internal/tool"
+	"github.com/schedule-job/schedule-job-batch/internal/rule_based_replace"
 )
 
 func TestRuleBasedReplace(t *testing.T) {
-
-	var newTool = tool.Tool{}
-
-	newTool.AddRule("add", func(params map[string]string, options interface{}) (string, error) {
+	rule_based_replace.Replacer.AddRule("add", func(params map[string]string, options interface{}) (string, error) {
 		if params["a"] == "" || params["b"] == "" {
 			return "", errors.New("a or b is empty")
 		}
@@ -61,7 +58,7 @@ func TestRuleBasedReplace(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := newTool.RuleBasedReplace(tt.text); got != tt.want {
+			if got := rule_based_replace.Replacer.RuleBasedReplace(tt.text); got != tt.want {
 				t.Errorf("RuleBasedReplace() = %v, want %v", got, tt.want)
 			}
 		})
