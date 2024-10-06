@@ -63,12 +63,12 @@ func main() {
 		router.SetTrustedProxies(trustedProxies)
 	}
 
-	router.POST("/api/v1/schedule/next-schedule", func(ctx *gin.Context) {
+	router.POST("/api/v1/schedule/next", func(ctx *gin.Context) {
 		// - 특정 아이템의 다음 실행일 API
 		ctx.JSON(200, gin.H{"code": 200, "data": "ok"})
 	})
 
-	router.POST("/api/v1/schedule", func(ctx *gin.Context) {
+	router.POST("/api/v1/request", func(ctx *gin.Context) {
 		// - 1000개씩 읽어서 작업을 진행. 모든 요청이 끝나야 다음 1000개 작업
 		ctx.JSON(200, gin.H{"code": 200, "data": "ok"})
 	})
