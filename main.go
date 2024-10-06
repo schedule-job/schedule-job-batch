@@ -1,7 +1,12 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
+	"log"
+	"net/http"
 	"strings"
 	"time"
 
@@ -18,12 +23,14 @@ type Options struct {
 	Port           string
 	PostgresSqlDsn string
 	TrustedProxies string
+	AgentUrl       string
 }
 
 var DEFAULT_OPTIONS = map[string]string{
 	"PORT":             "8080",
 	"POSTGRES_SQL_DSN": "",
 	"TRUSTED_PROXIES":  "",
+	"AGENT_URL":        "",
 }
 
 func getOptions() *Options {
@@ -33,6 +40,7 @@ func getOptions() *Options {
 	options.Port = rawOptions["PORT"]
 	options.PostgresSqlDsn = rawOptions["POSTGRES_SQL_DSN"]
 	options.TrustedProxies = rawOptions["TRUSTED_PROXIES"]
+	options.AgentUrl = rawOptions["AGENT_URL"]
 
 	return options
 }
@@ -55,6 +63,9 @@ func main() {
 	}
 	if len(options.Port) == 0 {
 		panic("not found 'PORT' options")
+	}
+	if len(options.PostgresSqlDsn) == 0 {
+		panic("not found 'AGENT_URL' options")
 	}
 
 	database := pg.New(options.PostgresSqlDsn)
@@ -176,7 +187,53 @@ func main() {
 
 	router.POST("/api/v1/progress/:id", func(ctx *gin.Context) {
 		id := ctx.Param("id")
-		ctx.JSON(200, gin.H{"code": 200, "data": "ok"})
+
+		data, err := database.GetRequests(id)
+		if err != nil {
+			ctx.JSON(400, gin.H{"code": 400, "message": err.Error()})
+			return
+		}
+
+		var check = request.Requester.CheckSupportedRequest(data.Name)
+		if !check {
+			ctx.JSON(400, gin.H{"code": 400, "message": "지원하지 않는 요청입니다."})
+			return
+		}
+
+		result, err := request.Requester.Request(data.Name, data.Payload)
+
+		if err != nil {
+			ctx.JSON(400, gin.H{"code": 400, "message": err.Error()})
+			return
+		}
+
+		format := request.NewRequestFormat(result)
+
+		jsonData, err := json.Marshal(format)
+		if err != nil {
+			log.Fatalf("Failed to marshal JSON: %v", err)
+		}
+
+		req, err := http.NewRequest("POST", options.AgentUrl+"/api/v1/request", bytes.NewBuffer(jsonData))
+		if err != nil {
+			log.Fatalf("Failed to create request: %v", err)
+		}
+
+		req.Header.Set("Content-Type", "application/json")
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Fatalf("Failed to send request: %v", err)
+		}
+		defer resp.Body.Close()
+
+		_, err = io.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatalf("Failed to read response: %v", err)
+		}
+
+		ctx.JSON(200, gin.H{"code": 200, "data": "in progress"})
 	})
 
 	router.POST("/api/v1/progress", func(ctx *gin.Context) {
