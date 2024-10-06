@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	ginsession "github.com/go-session/gin-session"
 	"github.com/schedule-job/schedule-job-batch/internal/pg"
+	"github.com/schedule-job/schedule-job-batch/internal/rule_based_replace"
 	"github.com/schedule-job/schedule-job-batch/internal/schedule"
 )
 
@@ -67,6 +68,9 @@ func main() {
 	schedule.Scheduler.AddSchedule("everyWeeks", schedule.EveryWeeks, nil)
 	schedule.Scheduler.AddSchedule("everyYear", schedule.EveryYear, nil)
 	schedule.Scheduler.AddSchedule("weeksOfEveryMonth", schedule.WeeksOfEveryMonth, nil)
+
+	rule_based_replace.Replacer.AddRule("toTimestamp", rule_based_replace.ToTimestamp, nil)
+	rule_based_replace.Replacer.AddRule("toTimestampAddMinute", rule_based_replace.ToTimestampAddMinute, nil)
 
 	if options.TrustedProxies != "" {
 		trustedProxies := strings.Split(options.TrustedProxies, ",")
