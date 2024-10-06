@@ -29,3 +29,26 @@
         "data": "2024-10-06T08:32:00Z"
       }
       ```
+
+### [POST] /api/v1/request
+
+- Example
+
+  - `/api/v1/request`
+  - Request
+
+    - Body
+
+      ```json
+      {}
+      ```
+
+  - Response
+
+    - Body
+
+      ```json
+      {
+        "code": 200
+      }
+      ```
