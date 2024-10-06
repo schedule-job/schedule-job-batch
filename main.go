@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	parser "github.com/Sotaneum/go-args-parser"
 	"github.com/gin-gonic/gin"
@@ -72,9 +73,26 @@ func main() {
 		router.SetTrustedProxies(trustedProxies)
 	}
 
-	router.POST("/api/v1/schedule/next", func(ctx *gin.Context) {
-		// - 특정 아이템의 다음 실행일 API
-		ctx.JSON(200, gin.H{"code": 200, "data": "ok"})
+	router.POST("/api/v1/schedule/next/:name", func(ctx *gin.Context) {
+		name := ctx.Param("name")
+
+		var check = schedule.Scheduler.CheckSupportedSchedule(name)
+		if !check {
+			ctx.JSON(400, gin.H{"code": 400, "message": "지원하지 않는 스케줄입니다."})
+			return
+		}
+
+		payload := make(map[string]string)
+		ctx.BindJSON(&payload)
+
+		result, err := schedule.Scheduler.Schedule(time.Now().UTC(), name, payload)
+
+		if err != nil {
+			ctx.JSON(400, gin.H{"code": 400, "message": err.Error()})
+			return
+		}
+
+		ctx.JSON(200, gin.H{"code": 200, "data": result})
 	})
 
 	router.POST("/api/v1/request", func(ctx *gin.Context) {

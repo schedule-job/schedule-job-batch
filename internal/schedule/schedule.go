@@ -14,6 +14,10 @@ type Schedule struct {
 	scheduleOptions map[string]interface{}
 }
 
+func (s *Schedule) CheckSupportedSchedule(name string) bool {
+	return s.schedules[name] != nil
+}
+
 func (s *Schedule) AddSchedule(name string, f func(time.Time, map[string]string, interface{}) (*time.Time, error), options interface{}) {
 	if s.schedules == nil {
 		s.schedules = make(map[string]func(time.Time, map[string]string, interface{}) (*time.Time, error))
