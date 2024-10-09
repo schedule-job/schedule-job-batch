@@ -16,7 +16,7 @@ type Request struct {
 func (p *PostgresSQL) GetRequest(id string) (*Request, error) {
 	data, err := p.usePostgresSQL(func(client *pgx.Conn, ctx context.Context) (result interface{}, err error) {
 		request := Request{}
-		queryErr := client.QueryRow(ctx, "SELECT id, name, payload FROM request WHERE id = $1", id).Scan(
+		queryErr := client.QueryRow(ctx, "SELECT job_id, name, payload FROM request WHERE job_id = $1", id).Scan(
 			&request.ID,
 			&request.Name,
 			&request.Payload,
@@ -42,7 +42,7 @@ func (p *PostgresSQL) GetRequest(id string) (*Request, error) {
 
 func (p *PostgresSQL) GetIdsByRequests() ([]string, error) {
 	data, err := p.usePostgresSQL(func(client *pgx.Conn, ctx context.Context) (result interface{}, err error) {
-		rows, queryErr := client.Query(ctx, "SELECT id FROM request")
+		rows, queryErr := client.Query(ctx, "SELECT job_id FROM request")
 		if err != nil {
 			return nil, queryErr
 		}
@@ -73,7 +73,7 @@ func (p *PostgresSQL) GetIdsByRequests() ([]string, error) {
 
 func (p *PostgresSQL) GetRequests() (*[]Request, error) {
 	data, err := p.usePostgresSQL(func(client *pgx.Conn, ctx context.Context) (result interface{}, err error) {
-		rows, queryErr := client.Query(ctx, "SELECT id, name, payload FROM request")
+		rows, queryErr := client.Query(ctx, "SELECT job_id, name, payload FROM request")
 		if err != nil {
 			return nil, queryErr
 		}

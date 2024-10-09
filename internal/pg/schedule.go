@@ -15,7 +15,7 @@ type Schedule struct {
 func (p *PostgresSQL) GetSchedule(id string) (*Schedule, error) {
 	data, err := p.usePostgresSQL(func(client *pgx.Conn, ctx context.Context) (result interface{}, err error) {
 		schedule := Schedule{}
-		queryErr := client.QueryRow(ctx, "SELECT name, payload FROM schedule WHERE id = $1", id).Scan(
+		queryErr := client.QueryRow(ctx, "SELECT name, payload FROM schedule WHERE job_id = $1", id).Scan(
 			&schedule.Name,
 			&schedule.Payload,
 		)

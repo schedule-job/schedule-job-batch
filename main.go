@@ -26,7 +26,7 @@ type Options struct {
 var DEFAULT_OPTIONS = map[string]string{
 	"PORT":             "8080",
 	"POSTGRES_SQL_DSN": "",
-	"TRUSTED_PROXIES":  "",
+	"TRUSTED_PROXIES":  "127.0.0.1",
 	"AGENT_URL":        "",
 }
 
@@ -208,6 +208,7 @@ func main() {
 
 		if agentErr != nil {
 			ctx.JSON(400, gin.H{"code": 400, "message": agentErr.Error()})
+			return
 		}
 
 		ctx.JSON(200, gin.H{"code": 200, "data": "in progress", "all": len(ids), "started": len(requests), "error": errorCnt})

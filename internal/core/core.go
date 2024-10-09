@@ -26,7 +26,7 @@ func GetNextScheduleByDatabase(id string, database *pg.PostgresSQL, pivotTime ti
 	data, err := database.GetSchedule(id)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.New("요청 정보가 없습니다.")
 	}
 
 	return GetNextSchedule(data.Name, data.Payload, pivotTime)
@@ -45,7 +45,7 @@ func GetNextRequestByDatabase(id string, database *pg.PostgresSQL) (request.Requ
 	data, err := database.GetRequest(id)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.New("요청 정보가 없습니다.")
 	}
 
 	return GetNextRequest(data.Name, data.Payload)
@@ -66,7 +66,7 @@ func ReqeustAgent(reqs []request.RequestInterface, agentUrl string) error {
 
 	api, createAPIErr := http.NewRequest("POST", agentUrl+"/api/v1/request", bytes.NewBuffer(jsonData))
 	if createAPIErr != nil {
-		return createAPIErr
+		return errors.New("API 요청 포맷에 문제가 발생했습니다. 지속된 이슈가 발생하는 경우 관리자에게 문의하세요.")
 	}
 	api.Header.Set("Content-Type", "application/json")
 
@@ -74,7 +74,7 @@ func ReqeustAgent(reqs []request.RequestInterface, agentUrl string) error {
 	result, clientErr := client.Do(api)
 
 	if clientErr != nil {
-		return clientErr
+		return errors.New("Agent 서버와 연결을 실패했습니다.")
 	}
 
 	defer result.Body.Close()
