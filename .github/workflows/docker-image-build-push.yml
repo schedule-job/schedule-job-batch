@@ -27,8 +27,8 @@ jobs:
         with:
           push: true
           tags: |
-            sotaneum/schedule-job-docker:${{ env.DATE }}
-            sotaneum/schedule-job-docker:latest
+            sotaneum/schedule-job-batch:${{ env.DATE }}
+            sotaneum/schedule-job-batch:latest
           platforms: |
             linux/amd64
             linux/arm64
