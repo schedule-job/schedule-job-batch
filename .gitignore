@@ -25,3 +25,4 @@ gopkg.in
 *.env
 tmp
 .vscode
+.DS_Store
