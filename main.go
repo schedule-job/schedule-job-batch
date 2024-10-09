@@ -61,7 +61,7 @@ func main() {
 	if len(options.Port) == 0 {
 		panic("not found 'PORT' options")
 	}
-	if len(options.PostgresSqlDsn) == 0 {
+	if len(options.AgentUrl) == 0 {
 		panic("not found 'AGENT_URL' options")
 	}
 
