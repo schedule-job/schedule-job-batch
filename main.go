@@ -1,22 +1,19 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"io"
-	"log"
-	"net/http"
 	"strings"
 	"time"
 
 	parser "github.com/Sotaneum/go-args-parser"
 	"github.com/gin-gonic/gin"
 	ginsession "github.com/go-session/gin-session"
+	"github.com/schedule-job/schedule-job-batch/internal/core"
 	"github.com/schedule-job/schedule-job-batch/internal/pg"
 	"github.com/schedule-job/schedule-job-batch/internal/request"
 	"github.com/schedule-job/schedule-job-batch/internal/rule_based_replace"
 	"github.com/schedule-job/schedule-job-batch/internal/schedule"
+	"github.com/schedule-job/schedule-job-batch/internal/tool"
 )
 
 type Options struct {
@@ -93,17 +90,15 @@ func main() {
 
 	router.POST("/api/v1/schedule/pre-next/:name", func(ctx *gin.Context) {
 		name := ctx.Param("name")
+		payload := make(map[string]string)
+		bindErr := ctx.BindJSON(&payload)
 
-		var check = schedule.Scheduler.CheckSupportedSchedule(name)
-		if !check {
-			ctx.JSON(400, gin.H{"code": 400, "message": "지원하지 않는 스케줄입니다."})
+		if bindErr != nil {
+			ctx.JSON(400, gin.H{"code": 400, "message": "payload 에러 : " + bindErr.Error()})
 			return
 		}
 
-		payload := make(map[string]string)
-		ctx.BindJSON(&payload)
-
-		result, err := schedule.Scheduler.Schedule(time.Now().UTC(), name, payload)
+		result, err := core.GetNextSchedule(name, payload, time.Now().UTC())
 
 		if err != nil {
 			ctx.JSON(400, gin.H{"code": 400, "message": err.Error()})
@@ -115,17 +110,15 @@ func main() {
 
 	router.POST("/api/v1/request/pre-next/:name", func(ctx *gin.Context) {
 		name := ctx.Param("name")
+		payload := make(map[string]interface{})
+		bindErr := ctx.BindJSON(&payload)
 
-		var check = request.Requester.CheckSupportedRequest(name)
-		if !check {
-			ctx.JSON(400, gin.H{"code": 400, "message": "지원하지 않는 요청입니다."})
+		if bindErr != nil {
+			ctx.JSON(400, gin.H{"code": 400, "message": "payload 에러 : " + bindErr.Error()})
 			return
 		}
 
-		payload := make(map[string]interface{})
-		ctx.BindJSON(&payload)
-
-		result, err := request.Requester.Request(name, payload)
+		result, err := core.GetNextRequest(name, payload)
 
 		if err != nil {
 			ctx.JSON(400, gin.H{"code": 400, "message": err.Error()})
@@ -137,20 +130,7 @@ func main() {
 
 	router.POST("/api/v1/schedule/next/:id", func(ctx *gin.Context) {
 		id := ctx.Param("id")
-
-		data, err := database.GetSchedule(id)
-		if err != nil {
-			ctx.JSON(400, gin.H{"code": 400, "message": err.Error()})
-			return
-		}
-
-		var check = schedule.Scheduler.CheckSupportedSchedule(data.Name)
-		if !check {
-			ctx.JSON(400, gin.H{"code": 400, "message": "지원하지 않는 스케줄입니다."})
-			return
-		}
-
-		result, err := schedule.Scheduler.Schedule(time.Now().UTC(), data.Name, data.Payload)
+		result, err := core.GetNextScheduleByDatabase(id, database, time.Now().UTC())
 
 		if err != nil {
 			ctx.JSON(400, gin.H{"code": 400, "message": err.Error()})
@@ -162,20 +142,7 @@ func main() {
 
 	router.POST("/api/v1/request/next/:id", func(ctx *gin.Context) {
 		id := ctx.Param("id")
-
-		data, err := database.GetRequests(id)
-		if err != nil {
-			ctx.JSON(400, gin.H{"code": 400, "message": err.Error()})
-			return
-		}
-
-		var check = request.Requester.CheckSupportedRequest(data.Name)
-		if !check {
-			ctx.JSON(400, gin.H{"code": 400, "message": "지원하지 않는 요청입니다."})
-			return
-		}
-
-		result, err := request.Requester.Request(data.Name, data.Payload)
+		result, err := core.GetNextRequestByDatabase(id, database)
 
 		if err != nil {
 			ctx.JSON(400, gin.H{"code": 400, "message": err.Error()})
@@ -187,58 +154,63 @@ func main() {
 
 	router.POST("/api/v1/progress/:id", func(ctx *gin.Context) {
 		id := ctx.Param("id")
-
-		data, err := database.GetRequests(id)
-		if err != nil {
-			ctx.JSON(400, gin.H{"code": 400, "message": err.Error()})
-			return
-		}
-
-		var check = request.Requester.CheckSupportedRequest(data.Name)
-		if !check {
-			ctx.JSON(400, gin.H{"code": 400, "message": "지원하지 않는 요청입니다."})
-			return
-		}
-
-		result, err := request.Requester.Request(data.Name, data.Payload)
+		req, err := core.GetNextRequestByDatabase(id, database)
 
 		if err != nil {
 			ctx.JSON(400, gin.H{"code": 400, "message": err.Error()})
 			return
 		}
 
-		format := request.NewRequestFormat(result)
+		items := []request.RequestInterface{}
+		items = append(items, req)
 
-		jsonData, err := json.Marshal(format)
-		if err != nil {
-			log.Fatalf("Failed to marshal JSON: %v", err)
-		}
-
-		req, err := http.NewRequest("POST", options.AgentUrl+"/api/v1/request", bytes.NewBuffer(jsonData))
-		if err != nil {
-			log.Fatalf("Failed to create request: %v", err)
-		}
-
-		req.Header.Set("Content-Type", "application/json")
-
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		if err != nil {
-			log.Fatalf("Failed to send request: %v", err)
-		}
-		defer resp.Body.Close()
-
-		_, err = io.ReadAll(resp.Body)
-		if err != nil {
-			log.Fatalf("Failed to read response: %v", err)
+		if core.ReqeustAgent(items, options.AgentUrl) != nil {
+			ctx.JSON(400, gin.H{"code": 400, "message": err.Error()})
+			return
 		}
 
 		ctx.JSON(200, gin.H{"code": 200, "data": "in progress"})
 	})
 
 	router.POST("/api/v1/progress", func(ctx *gin.Context) {
+		ids, err := database.GetIdsByRequests()
+		if err != nil {
+			ctx.JSON(400, gin.H{"code": 400, "message": err.Error()})
+			return
+		}
 
-		ctx.JSON(200, gin.H{"code": 200, "data": "ok"})
+		requests := []request.RequestInterface{}
+		now := time.Now().UTC()
+		pivotTime := tool.NewUTCDate(now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute())
+		errorCnt := 0
+		for _, id := range ids {
+			sch, schErr := core.GetNextScheduleByDatabase(id, database, pivotTime)
+			if schErr != nil {
+				errorCnt++
+				continue
+			}
+
+			if pivotTime.Compare(*sch) == 0 {
+				continue
+			}
+
+			req, reqErr := core.GetNextRequestByDatabase(id, database)
+
+			if reqErr != nil {
+				errorCnt++
+				continue
+			}
+
+			requests = append(requests, req)
+		}
+
+		agentErr := core.ReqeustAgent(requests, options.AgentUrl)
+
+		if agentErr != nil {
+			ctx.JSON(400, gin.H{"code": 400, "message": agentErr.Error()})
+		}
+
+		ctx.JSON(200, gin.H{"code": 200, "data": "in progress", "all": len(ids), "started": len(requests), "error": errorCnt})
 	})
 
 	router.NoRoute(func(ctx *gin.Context) {
