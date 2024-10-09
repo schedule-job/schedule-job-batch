@@ -26,7 +26,7 @@ type Options struct {
 var DEFAULT_OPTIONS = map[string]string{
 	"PORT":             "8080",
 	"POSTGRES_SQL_DSN": "",
-	"TRUSTED_PROXIES":  "127.0.0.1",
+	"TRUSTED_PROXIES":  "",
 	"AGENT_URL":        "",
 }
 
@@ -164,8 +164,10 @@ func main() {
 		items := []request.RequestInterface{}
 		items = append(items, req)
 
-		if core.ReqeustAgent(items, options.AgentUrl) != nil {
-			ctx.JSON(400, gin.H{"code": 400, "message": err.Error()})
+		reqeustErr := core.ReqeustAgent(items, options.AgentUrl)
+
+		if reqeustErr != nil {
+			ctx.JSON(400, gin.H{"code": 400, "message": reqeustErr.Error()})
 			return
 		}
 

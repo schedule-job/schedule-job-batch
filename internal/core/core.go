@@ -79,6 +79,10 @@ func ReqeustAgent(reqs []request.RequestInterface, agentUrl string) error {
 
 	defer result.Body.Close()
 
+	if result.StatusCode != 200 {
+		return errors.New("Agent 서버 요청에 실패했습니다.")
+	}
+
 	_, readErr := io.ReadAll(result.Body)
 
 	if readErr != nil {
