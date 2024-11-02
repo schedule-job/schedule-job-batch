@@ -175,7 +175,7 @@ func main() {
 	})
 
 	router.POST("/api/v1/progress", func(ctx *gin.Context) {
-		ids, err := database.GetIdsByRequests()
+		ids, err := database.SelectIdsByAction()
 		if err != nil {
 			ctx.JSON(400, gin.H{"code": 400, "message": err.Error()})
 			return
