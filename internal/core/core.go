@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/schedule-job/schedule-job-batch/internal/pg"
 	"github.com/schedule-job/schedule-job-batch/internal/request"
 	"github.com/schedule-job/schedule-job-batch/internal/schedule"
+	"github.com/schedule-job/schedule-job-database/pg"
 )
 
 func GetNextSchedule(name string, payload map[string]string, pivotTime time.Time) (*time.Time, error) {
@@ -42,7 +42,7 @@ func GetNextRequest(name string, payload map[string]interface{}) (request.Reques
 }
 
 func GetNextRequestByDatabase(id string, database *pg.PostgresSQL) (request.RequestInterface, error) {
-	data, err := database.GetRequest(id)
+	data, err := database.SelectAction(id)
 
 	if err != nil {
 		return nil, errors.New("요청 정보가 없습니다.")

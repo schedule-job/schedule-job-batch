@@ -9,11 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 	ginsession "github.com/go-session/gin-session"
 	"github.com/schedule-job/schedule-job-batch/internal/core"
-	"github.com/schedule-job/schedule-job-batch/internal/pg"
 	"github.com/schedule-job/schedule-job-batch/internal/request"
 	"github.com/schedule-job/schedule-job-batch/internal/rule_based_replace"
 	"github.com/schedule-job/schedule-job-batch/internal/schedule"
 	"github.com/schedule-job/schedule-job-batch/internal/tool"
+	"github.com/schedule-job/schedule-job-database/pg"
 )
 
 type Options struct {
