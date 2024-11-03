@@ -40,7 +40,7 @@ require (
 	github.com/Sotaneum/go-args-parser v1.0.1
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-session/gin-session v3.1.0+incompatible
-	github.com/schedule-job/schedule-job-database v0.0.0-20241102110016-d42a6cf0e7e0
+	github.com/schedule-job/schedule-job-database v1.0.0-alpha.1
 	golang.org/x/crypto v0.27.0 // indirect
 	golang.org/x/text v0.18.0 // indirect
 )

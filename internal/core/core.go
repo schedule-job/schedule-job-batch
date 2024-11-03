@@ -10,7 +10,7 @@ import (
 
 	"github.com/schedule-job/schedule-job-batch/internal/request"
 	"github.com/schedule-job/schedule-job-batch/internal/schedule"
-	"github.com/schedule-job/schedule-job-database/pg"
+	"github.com/schedule-job/schedule-job-database/core"
 )
 
 func GetNextSchedule(name string, payload map[string]string, pivotTime time.Time) (*time.Time, error) {
@@ -22,8 +22,8 @@ func GetNextSchedule(name string, payload map[string]string, pivotTime time.Time
 	return schedule.Scheduler.Schedule(pivotTime, name, payload)
 }
 
-func GetNextScheduleByDatabase(id string, database *pg.PostgresSQL, pivotTime time.Time) (*time.Time, error) {
-	data, err := database.GetSchedule(id)
+func GetNextScheduleByDatabase(id string, database core.Database, pivotTime time.Time) (*time.Time, error) {
+	data, err := database.SelectTrigger(id)
 
 	if err != nil {
 		return nil, errors.New("요청 정보가 없습니다.")
@@ -41,7 +41,7 @@ func GetNextRequest(name string, payload map[string]interface{}) (request.Reques
 	return request.Requester.Request(name, payload)
 }
 
-func GetNextRequestByDatabase(id string, database *pg.PostgresSQL) (request.RequestInterface, error) {
+func GetNextRequestByDatabase(id string, database core.Database) (request.RequestInterface, error) {
 	data, err := database.SelectAction(id)
 
 	if err != nil {
