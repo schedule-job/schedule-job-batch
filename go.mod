@@ -26,6 +26,7 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
+	github.com/schedule-job/schedule-job-errors v1.0.0-alpha.1 // indirect
 	github.com/smartystreets/goconvey v1.8.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
@@ -40,7 +41,7 @@ require (
 	github.com/Sotaneum/go-args-parser v1.0.1
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-session/gin-session v3.1.0+incompatible
-	github.com/schedule-job/schedule-job-database v1.0.0-alpha.1
+	github.com/schedule-job/schedule-job-database v1.0.0-alpha.11
 	golang.org/x/crypto v0.27.0 // indirect
 	golang.org/x/text v0.18.0 // indirect
 )
