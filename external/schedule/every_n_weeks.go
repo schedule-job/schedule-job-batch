@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/schedule-job/schedule-job-batch/internal/tool"
+	"github.com/schedule-job/schedule-job-batch/external/tool"
 )
 
 type everyNWeeks struct {

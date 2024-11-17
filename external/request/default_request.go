@@ -3,7 +3,7 @@ package request
 import (
 	"errors"
 
-	"github.com/schedule-job/schedule-job-batch/internal/rule_based_replace"
+	"github.com/schedule-job/schedule-job-batch/external/rule_based_replace"
 )
 
 type DefaultRequest struct {

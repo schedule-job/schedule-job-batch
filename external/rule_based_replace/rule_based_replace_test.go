@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/schedule-job/schedule-job-batch/internal/rule_based_replace"
+	"github.com/schedule-job/schedule-job-batch/external/rule_based_replace"
 )
 
 func TestRuleBasedReplace(t *testing.T) {

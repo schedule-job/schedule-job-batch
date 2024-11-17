@@ -8,11 +8,11 @@ import (
 	parser "github.com/Sotaneum/go-args-parser"
 	"github.com/gin-gonic/gin"
 	ginsession "github.com/go-session/gin-session"
-	"github.com/schedule-job/schedule-job-batch/internal/core"
-	"github.com/schedule-job/schedule-job-batch/internal/request"
-	"github.com/schedule-job/schedule-job-batch/internal/rule_based_replace"
-	"github.com/schedule-job/schedule-job-batch/internal/schedule"
-	"github.com/schedule-job/schedule-job-batch/internal/tool"
+	"github.com/schedule-job/schedule-job-batch/external/core"
+	"github.com/schedule-job/schedule-job-batch/external/request"
+	"github.com/schedule-job/schedule-job-batch/external/rule_based_replace"
+	"github.com/schedule-job/schedule-job-batch/external/schedule"
+	"github.com/schedule-job/schedule-job-batch/external/tool"
 	"github.com/schedule-job/schedule-job-database/pg"
 )
 

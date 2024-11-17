@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/schedule-job/schedule-job-batch/internal/schedule"
-	"github.com/schedule-job/schedule-job-batch/internal/tool"
+	"github.com/schedule-job/schedule-job-batch/external/schedule"
+	"github.com/schedule-job/schedule-job-batch/external/tool"
 )
 
 func TestEveryNWeeks(t *testing.T) {

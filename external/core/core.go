@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/schedule-job/schedule-job-batch/internal/request"
-	"github.com/schedule-job/schedule-job-batch/internal/schedule"
+	"github.com/schedule-job/schedule-job-batch/external/request"
+	"github.com/schedule-job/schedule-job-batch/external/schedule"
 	"github.com/schedule-job/schedule-job-database/core"
 )
 

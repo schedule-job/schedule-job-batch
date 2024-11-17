@@ -3,7 +3,7 @@ package rule_based_replace
 import (
 	"strings"
 
-	"github.com/schedule-job/schedule-job-batch/internal/tool"
+	"github.com/schedule-job/schedule-job-batch/external/tool"
 )
 
 type ruleBasedReplaceOption struct {
